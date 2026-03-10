@@ -94,7 +94,7 @@ Each phase has:
 ## How approvals work
 
 - Every phase writes `needs_human_review` before pause.
-- Human approval is captured in `docs/approvals/approval-<phase>.yaml`.
+- Human approval is captured in `docs/approvals/approval-phase-<n>.yaml`.
 - `docs/status/phase-status.yaml` is updated only after approval.
 - If ambiguity/conflict exists, phase must stop and open a question in `docs/unknowns/open-questions.yaml`.
 
