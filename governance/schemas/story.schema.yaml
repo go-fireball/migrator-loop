@@ -1,0 +1,19 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+title: Story
+type: object
+additionalProperties: false
+required: [id, feature_id, name, status, acceptance_criteria, tasks]
+properties:
+  id: { type: string }
+  feature_id: { type: string }
+  name: { type: string }
+  status:
+    type: string
+    enum: [draft, proposed, needs_human_review, approved, in_progress, blocked, implemented, validated, rejected, done]
+  acceptance_criteria:
+    type: array
+    items: { type: string }
+    minItems: 1
+  tasks:
+    type: array
+    items: { type: string }

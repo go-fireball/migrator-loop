@@ -1,0 +1,10 @@
+id: STORY-001
+feature_id: FEAT-001
+name: Implement login API parity
+status: proposed
+acceptance_criteria:
+  - "API returns parity-aligned success and failure outcomes."
+  - "Lockout behavior matches contract PAR-LOGIN-001."
+tasks:
+  - TASK-001
+  - TASK-002

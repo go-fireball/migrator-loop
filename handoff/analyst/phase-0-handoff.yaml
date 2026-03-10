@@ -1,0 +1,10 @@
+id: handoff-phase-0-001
+phase: 0
+from_role: Analyst
+to_role: Analyst
+status: needs_human_review
+outputs:
+  - docs/project.yaml
+  - docs/unknowns/open-questions.yaml
+open_risks:
+  - "Delivery channel decision unresolved"

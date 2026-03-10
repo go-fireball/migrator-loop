@@ -1,0 +1,23 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+title: PhaseStatus
+type: object
+additionalProperties: false
+required: [current_phase, phase_states]
+properties:
+  current_phase: { type: integer, minimum: 0, maximum: 6 }
+  phase_states:
+    type: array
+    minItems: 7
+    items:
+      type: object
+      additionalProperties: false
+      required: [phase, name, owner_role, status, approval_required, stop_condition]
+      properties:
+        phase: { type: integer, minimum: 0, maximum: 6 }
+        name: { type: string }
+        owner_role: { type: string }
+        status:
+          type: string
+          enum: [draft, proposed, needs_human_review, approved, in_progress, blocked, implemented, validated, rejected, done]
+        approval_required: { type: boolean }
+        stop_condition: { type: string }

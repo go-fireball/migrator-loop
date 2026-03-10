@@ -1,0 +1,15 @@
+id: strategy-001
+status: proposed
+recommended_mode: hybrid
+rationale:
+  - "Legacy workflows are business-critical and partially undocumented."
+  - "Hybrid path reduces cutover risk while preserving parity."
+  - "Direct rewrite is feasible for auth and account modules, strangler for order pipeline."
+target_architecture:
+  - "new/apps/api -> ASP.NET Core modular monolith"
+  - "new/apps/ui -> Next.js"
+  - "new/packages -> shared domain and infrastructure libraries"
+  - "new/infra -> AWS CDK with ECS/Fargate and RDS/Aurora PostgreSQL"
+modernization_decisions:
+  - "Decision required: desktop delivery channel replacement timing"
+  - "Keep legacy SQL Server integration during first parity milestone"

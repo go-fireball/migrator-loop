@@ -1,0 +1,11 @@
+id: handoff-phase-3-001
+phase: 3
+from_role: Planner-Architect
+to_role: Builder
+status: proposed
+outputs:
+  - docs/features/feature-login.yaml
+  - docs/stories/story-login-api.yaml
+  - docs/tasks/task-login-controller.yaml
+open_risks:
+  - "Backlog depends on pending identity decision"

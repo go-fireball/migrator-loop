@@ -1,0 +1,13 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+title: HandoffSummary
+type: object
+additionalProperties: false
+required: [id, phase, from_role, to_role, status, outputs, open_risks]
+properties:
+  id: { type: string }
+  phase: { type: integer, minimum: 0, maximum: 6 }
+  from_role: { type: string }
+  to_role: { type: string }
+  status: { type: string, enum: [proposed, needs_human_review, approved] }
+  outputs: { type: array, items: { type: string }, minItems: 1 }
+  open_risks: { type: array, items: { type: string } }

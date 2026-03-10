@@ -1,0 +1,41 @@
+id: PAR-LOGIN-001
+name: Login workflow parity
+status: proposed
+legacy_modules:
+  - old/desktop/Auth/LoginForm.cs
+  - old/server/AuthController.cs
+target_apps:
+  - new/apps/api
+  - new/apps/ui
+business_goal: "Allow authorized users to sign in and access permitted workflows."
+parity_scope: "Credential verification, lockout rules, session start, and login errors."
+allowed_modernizations:
+  - "UI layout modernization without changing outcomes"
+  - "Token-based session implementation replacing server session state"
+forbidden_changes:
+  - "Changing lockout threshold without approval"
+  - "Removing required failed-attempt audit logging"
+inputs:
+  - "username"
+  - "password"
+  - "client context"
+outputs:
+  - "authenticated session or token"
+  - "error response with parity-safe message"
+business_rules:
+  - "Lock account after configured failed attempts window"
+  - "Disable login for inactive users"
+edge_cases:
+  - "Expired password on first login"
+  - "Clock skew for token issuance"
+dependencies:
+  - "User identity store"
+  - "Audit log sink"
+validation_approach:
+  - "Unit tests for lockout and inactive checks"
+  - "Integration tests for end-to-end sign-in"
+human_decisions_required:
+  - "Whether MFA is introduced in parity release"
+parity_result:
+  status: not_run
+  notes: "Pending implementation"

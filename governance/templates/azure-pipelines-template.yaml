@@ -1,0 +1,12 @@
+trigger:
+  - main
+pool:
+  vmImage: ubuntu-latest
+steps:
+  - checkout: self
+  - script: bash -n scripts/*.sh
+    displayName: "Validate script syntax"
+  - script: |
+      test -f docs/project.yaml
+      test -f docs/status/phase-status.yaml
+    displayName: "Check required governance docs"

@@ -1,0 +1,21 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+title: ValidationReport
+type: object
+additionalProperties: false
+required: [id, phase, status, summary, results]
+properties:
+  id: { type: string }
+  phase: { type: integer, const: 5 }
+  status: { type: string, enum: [draft, proposed, needs_human_review, approved, validated, rejected] }
+  summary: { type: string }
+  results:
+    type: array
+    items:
+      type: object
+      additionalProperties: false
+      required: [parity_contract_id, result, evidence]
+      properties:
+        parity_contract_id: { type: string }
+        result: { type: string, enum: [pass, fail, partial] }
+        evidence: { type: array, items: { type: string } }
+        deviations: { type: array, items: { type: string } }

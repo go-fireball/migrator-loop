@@ -1,0 +1,14 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+title: Task
+type: object
+additionalProperties: false
+required: [id, story_id, name, owner_role, status]
+properties:
+  id: { type: string }
+  story_id: { type: string }
+  name: { type: string }
+  owner_role: { type: string, enum: [Planner-Architect, Builder, Validator] }
+  status:
+    type: string
+    enum: [draft, proposed, approved, in_progress, blocked, implemented, validated, rejected, done]
+  implementation_notes: { type: string }

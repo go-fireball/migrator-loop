@@ -1,0 +1,18 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+title: ApprovalRecord
+type: object
+additionalProperties: false
+required: [id, phase, artifact_refs, decision, approver, decided_at]
+properties:
+  id: { type: string }
+  phase: { type: integer, minimum: 0, maximum: 6 }
+  artifact_refs:
+    type: array
+    items: { type: string }
+    minItems: 1
+  decision:
+    type: string
+    enum: [approved, rejected, needs_more_info]
+  rationale: { type: string }
+  approver: { type: string }
+  decided_at: { type: string, format: date-time }

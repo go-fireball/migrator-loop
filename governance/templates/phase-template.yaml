@@ -1,0 +1,13 @@
+phase: 0
+name: intake
+owner_role: Analyst
+status: draft
+required_outputs: []
+handoff_file: handoff/analyst/phase-0-handoff.yaml
+approval:
+  required: true
+  record_file: docs/approvals/approval-phase-0.yaml
+stop_conditions:
+  - missing_required_outputs
+  - unresolved_unknowns
+notes: "Use this template per phase and specialize in docs/status/phase-status.yaml"

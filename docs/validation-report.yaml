@@ -1,0 +1,11 @@
+id: validation-001
+phase: 5
+status: draft
+summary: "Placeholder validation report before implementation starts."
+results:
+  - parity_contract_id: PAR-LOGIN-001
+    result: partial
+    evidence:
+      - "No executable tests yet; discovery evidence only"
+    deviations:
+      - "Implementation not complete"

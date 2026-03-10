@@ -1,0 +1,16 @@
+status: draft
+modules:
+  - name: Desktop Client
+    path: old/desktop
+    type: presentation
+  - name: Legacy API
+    path: old/server
+    type: backend
+  - name: SQL Jobs
+    path: old/jobs
+    type: batch
+integrations:
+  - "Fulfillment API"
+  - "SMTP notification service"
+risks:
+  - "Batch job dependencies may be undocumented"

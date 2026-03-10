@@ -1,0 +1,12 @@
+id: handoff-phase-1-001
+phase: 1
+from_role: Analyst
+to_role: Planner-Architect
+status: proposed
+outputs:
+  - docs/current-state/system-inventory.yaml
+  - docs/current-state/workflow-map.yaml
+  - docs/parity/login.yaml
+  - docs/parity/order-processing.yaml
+open_risks:
+  - "Order reconciliation behavior needs SME clarification"
