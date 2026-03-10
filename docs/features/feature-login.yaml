@@ -1,0 +1,9 @@
+id: FEAT-001
+name: Login and Session Management Parity
+status: proposed
+objective: "Deliver parity login behavior in new web/API stack."
+parity_contract_ids:
+  - PAR-LOGIN-001
+stories:
+  - STORY-001
+  - STORY-002

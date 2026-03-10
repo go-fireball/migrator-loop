@@ -1,0 +1,22 @@
+id: judgment-policy-v1
+status: approved
+principles:
+  - prefer_modular_monolith_over_microservices
+  - preserve_business_behavior_before_tech_modernization
+  - require_human_approval_for_delivery_channel_changes
+  - avoid_unjustified_novel_tech
+  - explicit_unknown_tracking_required
+rejection_triggers:
+  - "Microservices introduced without scale/team boundary justification"
+  - "Lambda-first architecture chosen without event-driven suitability"
+  - "NoSQL selected for relational domain without clear rationale"
+  - "Business rule changes not covered by approval or ADR"
+human_decision_required_when:
+  - "Windows desktop -> web delivery channel change"
+  - "Authentication provider changes with user impact"
+  - "Data model changes that alter external contracts"
+review_checklist:
+  - "Schema-compliant artifacts present"
+  - "Parity contracts include rules and edge cases"
+  - "Approval record exists for phase gate"
+  - "Unknowns are explicit and prioritized"

@@ -1,0 +1,22 @@
+project_name: migration-loop-demo
+migration_mode: hybrid
+legacy_stack_summary:
+  - "Windows desktop client (.NET Framework)"
+  - "Legacy ASP.NET MVC admin portal"
+  - "SQL Server database with stored procedures"
+target_stack_summary:
+  - "ASP.NET Core API (C#)"
+  - "Next.js web UI"
+  - "PostgreSQL target with staged transition"
+  - "AWS ECS/Fargate + RDS PostgreSQL + CloudFront/S3"
+current_phase: 0
+app_type: mixed
+execution_limits:
+  max_agent_runs_per_session: 12
+key_modernization_decisions:
+  - id: MOD-001
+    decision: "Windows desktop channel replacement with web UI"
+    status: needs_human_review
+  - id: MOD-002
+    decision: "Retain SQL Server for release 1, migrate to PostgreSQL in release 2"
+    status: proposed

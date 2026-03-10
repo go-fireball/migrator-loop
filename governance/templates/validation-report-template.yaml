@@ -1,0 +1,10 @@
+id: validation-001
+phase: 5
+status: proposed
+summary: "Validation run complete with one partial parity deviation."
+results:
+  - parity_contract_id: PAR-LOGIN-001
+    result: pass
+    evidence:
+      - "new/tests/integration/login-parity.spec.md"
+    deviations: []

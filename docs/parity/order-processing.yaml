@@ -1,0 +1,42 @@
+id: PAR-ORDER-001
+name: Order processing parity
+status: proposed
+legacy_modules:
+  - old/services/OrderProcessor.cs
+  - old/jobs/NightlyOrderReconcile.bat
+target_apps:
+  - new/apps/api
+  - new/packages/order-domain
+business_goal: "Process valid orders and emit downstream fulfillment events."
+parity_scope: "Order validation, pricing calculation, persistence, and fulfillment trigger."
+allowed_modernizations:
+  - "Replace batch reconciliation with scheduled container job"
+  - "Refactor stored procedure calls into repository layer"
+forbidden_changes:
+  - "Changing pricing rule precedence without approval"
+  - "Dropping external fulfillment callback"
+inputs:
+  - "order payload"
+  - "customer context"
+outputs:
+  - "persisted order"
+  - "fulfillment event"
+  - "validation errors"
+business_rules:
+  - "Reject order when account is on credit hold"
+  - "Apply contract pricing before promotional discounts"
+edge_cases:
+  - "Duplicate external order ID"
+  - "Fulfillment endpoint timeout"
+dependencies:
+  - "Pricing service"
+  - "Fulfillment API"
+  - "Order database"
+validation_approach:
+  - "Contract tests for fulfillment payload"
+  - "Parity fixture replay for pricing outcomes"
+human_decisions_required:
+  - "Can fulfillment retries move from sync to async in release 1?"
+parity_result:
+  status: not_run
+  notes: "Pending discovery and implementation"

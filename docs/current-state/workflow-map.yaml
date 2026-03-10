@@ -1,0 +1,18 @@
+status: draft
+workflows:
+  - id: WF-LOGIN
+    name: User Login
+    entry_points:
+      - old/desktop/Auth/LoginForm.cs
+      - old/server/AuthController.cs
+    downstream:
+      - session_store
+      - audit_log
+  - id: WF-ORDER
+    name: Order Processing
+    entry_points:
+      - old/server/OrderController.cs
+    downstream:
+      - pricing_service
+      - fulfillment_api
+      - nightly_reconciliation

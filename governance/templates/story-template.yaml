@@ -1,0 +1,10 @@
+id: STORY-001
+feature_id: FEAT-001
+name: Implement login endpoint and UI flow parity
+status: proposed
+acceptance_criteria:
+  - "User can authenticate with existing credential rules."
+  - "Error messages preserve supported business semantics."
+tasks:
+  - TASK-001
+  - TASK-002

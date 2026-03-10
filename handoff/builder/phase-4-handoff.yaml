@@ -1,0 +1,10 @@
+id: handoff-phase-4-001
+phase: 4
+from_role: Builder
+to_role: Validator
+status: proposed
+outputs:
+  - new/apps/
+  - new/tests/
+open_risks:
+  - "No implementation yet in starter framework"

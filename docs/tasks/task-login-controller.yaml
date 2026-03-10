@@ -1,0 +1,6 @@
+id: TASK-001
+story_id: STORY-001
+name: Build ASP.NET Core auth controller and service workflow
+owner_role: Builder
+status: approved
+implementation_notes: "Use controller/service/repository split and keep parity error semantics."

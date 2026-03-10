@@ -1,0 +1,83 @@
+current_phase: 0
+phase_states:
+  - phase: 0
+    name: Intake
+    owner_role: Analyst
+    status: in_progress
+    required_outputs:
+      - docs/project.yaml
+      - handoff/analyst/phase-0-handoff.yaml
+    handoff_file: handoff/analyst/phase-0-handoff.yaml
+    approval_required: true
+    approval_file: docs/approvals/approval-phase-0.yaml
+    stop_condition: "Stop when project manifest or scope is ambiguous"
+  - phase: 1
+    name: Discovery
+    owner_role: Analyst
+    status: draft
+    required_outputs:
+      - docs/current-state/system-inventory.yaml
+      - docs/current-state/workflow-map.yaml
+      - docs/parity/*.yaml
+      - handoff/analyst/phase-1-handoff.yaml
+    handoff_file: handoff/analyst/phase-1-handoff.yaml
+    approval_required: true
+    approval_file: docs/approvals/approval-phase-1.yaml
+    stop_condition: "Stop when any core behavior remains undocumented"
+  - phase: 2
+    name: Strategy
+    owner_role: Planner-Architect
+    status: draft
+    required_outputs:
+      - docs/strategy/migration-strategy.yaml
+      - docs/adr/ADR-0001-migration-mode.md
+      - handoff/planner-architect/phase-2-handoff.yaml
+    handoff_file: handoff/planner-architect/phase-2-handoff.yaml
+    approval_required: true
+    approval_file: docs/approvals/approval-phase-2.yaml
+    stop_condition: "Stop when migration mode or channel modernization needs decision"
+  - phase: 3
+    name: Backlog Generation
+    owner_role: Planner-Architect
+    status: draft
+    required_outputs:
+      - docs/features/*.yaml
+      - docs/stories/*.yaml
+      - docs/tasks/*.yaml
+      - handoff/planner-architect/phase-3-handoff.yaml
+    handoff_file: handoff/planner-architect/phase-3-handoff.yaml
+    approval_required: true
+    approval_file: docs/approvals/approval-phase-3.yaml
+    stop_condition: "Stop when stories cannot map cleanly to parity contracts"
+  - phase: 4
+    name: Story Implementation
+    owner_role: Builder
+    status: draft
+    required_outputs:
+      - new/apps/**
+      - handoff/builder/phase-4-handoff.yaml
+    handoff_file: handoff/builder/phase-4-handoff.yaml
+    approval_required: true
+    approval_file: docs/approvals/approval-phase-4.yaml
+    stop_condition: "Stop when approved story scope is exceeded"
+  - phase: 5
+    name: Validation
+    owner_role: Validator
+    status: draft
+    required_outputs:
+      - docs/validation-report.yaml
+      - handoff/validator/phase-5-handoff.yaml
+    handoff_file: handoff/validator/phase-5-handoff.yaml
+    approval_required: true
+    approval_file: docs/approvals/approval-phase-5.yaml
+    stop_condition: "Stop when parity verdict is incomplete"
+  - phase: 6
+    name: Delivery Readiness
+    owner_role: SJE-Reviewer
+    status: draft
+    required_outputs:
+      - handoff/sje-reviewer/phase-6-handoff.yaml
+    handoff_file: handoff/sje-reviewer/phase-6-handoff.yaml
+    approval_required: true
+    approval_file: docs/approvals/approval-phase-6.yaml
+    stop_condition: "Stop when unresolved high-impact unknowns remain"

@@ -1,0 +1,13 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+title: UnknownQuestion
+type: object
+additionalProperties: false
+required: [id, area, question, impact, status, owner_role]
+properties:
+  id: { type: string }
+  area: { type: string }
+  question: { type: string }
+  impact: { type: string, enum: [low, medium, high, critical] }
+  status: { type: string, enum: [open, needs_human_review, answered, deferred] }
+  owner_role: { type: string }
+  resolution: { type: string }

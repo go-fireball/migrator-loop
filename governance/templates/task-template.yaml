@@ -1,0 +1,7 @@
+id: TASK-001
+story_id: STORY-001
+name: Create ASP.NET Core auth controller and service
+type: implementation
+owner_role: Builder
+status: approved
+implementation_notes: ""

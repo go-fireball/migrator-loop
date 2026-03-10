@@ -1,0 +1,9 @@
+id: handoff-phase-5-001
+phase: 5
+from_role: Validator
+to_role: SJE-Reviewer
+status: proposed
+outputs:
+  - docs/validation-report.yaml
+open_risks:
+  - "Parity evidence incomplete until stories implemented"

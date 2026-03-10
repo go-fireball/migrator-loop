@@ -1,0 +1,15 @@
+questions:
+  - id: Q-001
+    area: delivery_channel
+    question: "Should the legacy Windows desktop client be replaced with a browser-based UI in release 1?"
+    impact: critical
+    status: needs_human_review
+    owner_role: Planner-Architect
+    resolution: ""
+  - id: Q-002
+    area: identity
+    question: "Do we keep legacy local auth for initial parity or switch to Cognito now?"
+    impact: high
+    status: open
+    owner_role: Analyst
+    resolution: ""

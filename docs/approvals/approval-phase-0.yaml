@@ -1,0 +1,9 @@
+id: approval-phase-0-001
+phase: 0
+artifact_refs:
+  - docs/project.yaml
+  - docs/status/phase-status.yaml
+decision: needs_more_info
+rationale: "Need human decision on desktop-to-web timing."
+approver: "pending-human"
+decided_at: "2026-01-10T12:30:00Z"

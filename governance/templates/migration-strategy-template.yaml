@@ -1,0 +1,12 @@
+id: strategy-001
+status: proposed
+recommended_mode: hybrid
+rationale:
+  - "Core order workflow is high-risk and should be strangled incrementally."
+target_architecture:
+  - "new/apps/api: ASP.NET Core modular monolith"
+  - "new/apps/ui: Next.js"
+  - "new/infra: AWS CDK for ECS + RDS PostgreSQL"
+modernization_decisions:
+  - "Keep legacy SQL Server read-replica for first release"
+  - "Move authentication to Cognito after parity release"

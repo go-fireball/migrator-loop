@@ -1,0 +1,8 @@
+id: approval-phase-X-001
+phase: 0
+artifact_refs:
+  - docs/current-state/system-inventory.yaml
+decision: needs_more_info
+rationale: "Pending clarification on authentication migration."
+approver: "human.name"
+decided_at: "2026-01-10T12:00:00Z"

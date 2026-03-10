@@ -1,0 +1,9 @@
+id: handoff-phase-X-001
+phase: 1
+from_role: Analyst
+to_role: Planner-Architect
+status: needs_human_review
+outputs:
+  - docs/current-state/system-inventory.yaml
+open_risks:
+  - "Legacy batch scheduler behavior not fully documented."

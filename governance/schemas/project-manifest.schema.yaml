@@ -1,0 +1,53 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+title: ProjectManifest
+type: object
+additionalProperties: false
+required:
+  - project_name
+  - migration_mode
+  - legacy_stack_summary
+  - target_stack_summary
+  - current_phase
+  - execution_limits
+  - app_type
+  - key_modernization_decisions
+properties:
+  project_name:
+    type: string
+    minLength: 3
+  migration_mode:
+    type: string
+    enum: [direct_rewrite, hybrid, strangler]
+  legacy_stack_summary:
+    type: array
+    items: { type: string }
+    minItems: 1
+  target_stack_summary:
+    type: array
+    items: { type: string }
+    minItems: 1
+  current_phase:
+    type: integer
+    minimum: 0
+    maximum: 6
+  app_type:
+    type: string
+    enum: [web, desktop, api, batch, mixed]
+  execution_limits:
+    type: object
+    additionalProperties: false
+    required: [max_agent_runs_per_session]
+    properties:
+      max_agent_runs_per_session: { type: integer, minimum: 1 }
+  key_modernization_decisions:
+    type: array
+    items:
+      type: object
+      additionalProperties: false
+      required: [id, decision, status]
+      properties:
+        id: { type: string }
+        decision: { type: string }
+        status:
+          type: string
+          enum: [draft, proposed, needs_human_review, approved, rejected]

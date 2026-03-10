@@ -1,0 +1,10 @@
+id: handoff-phase-6-001
+phase: 6
+from_role: SJE-Reviewer
+to_role: Human
+status: needs_human_review
+outputs:
+  - docs/status/phase-status.yaml
+  - docs/approvals/
+open_risks:
+  - "Cannot mark done while critical unknowns remain"

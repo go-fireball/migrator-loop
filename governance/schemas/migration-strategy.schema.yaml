@@ -1,0 +1,12 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+title: MigrationStrategy
+type: object
+additionalProperties: false
+required: [id, status, recommended_mode, rationale, target_architecture, modernization_decisions]
+properties:
+  id: { type: string }
+  status: { type: string, enum: [draft, proposed, needs_human_review, approved, rejected] }
+  recommended_mode: { type: string, enum: [direct_rewrite, hybrid, strangler] }
+  rationale: { type: array, items: { type: string }, minItems: 1 }
+  target_architecture: { type: array, items: { type: string }, minItems: 1 }
+  modernization_decisions: { type: array, items: { type: string } }
