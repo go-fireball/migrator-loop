@@ -8,7 +8,7 @@ require_file docs/strategy/migration-strategy.yaml
 require_file docs/adr/ADR-0001-migration-mode.md
 require_file handoff/planner-architect/phase-2-handoff.yaml
 
-if awk '/status: needs_human_review/' docs/unknowns/open-questions.yaml >/dev/null; then
+if grep -Eq '^[[:space:]]*status:[[:space:]]*needs_human_review([[:space:]]|$)' docs/unknowns/open-questions.yaml; then
   log_stop "Open human-review questions detected."
   exit 4
 fi
