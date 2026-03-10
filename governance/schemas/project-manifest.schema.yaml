@@ -10,6 +10,7 @@ required:
   - current_phase
   - execution_limits
   - app_type
+  - default_assistant_provider
   - key_modernization_decisions
 properties:
   project_name:
@@ -33,6 +34,9 @@ properties:
   app_type:
     type: string
     enum: [web, desktop, api, batch, mixed]
+  default_assistant_provider:
+    type: string
+    enum: [codex, copilot, claude]
   execution_limits:
     type: object
     additionalProperties: false

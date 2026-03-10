@@ -9,6 +9,27 @@ get_max_runs() {
   awk '/max_agent_runs_per_session:/ {print $2}' "$PROJECT_FILE"
 }
 
+get_default_assistant_provider() {
+  local provider
+  provider=$(awk '/default_assistant_provider:/ {print $2}' "$PROJECT_FILE" | head -n1)
+  if [[ -z "${provider:-}" ]]; then
+    provider="codex"
+  fi
+  echo "$provider"
+}
+
+validate_assistant_provider() {
+  local provider="$1"
+  case "$provider" in
+    codex|copilot|claude)
+      ;;
+    *)
+      echo "ERROR: unsupported assistant provider '$provider' (supported: codex, copilot, claude)" >&2
+      exit 1
+      ;;
+  esac
+}
+
 require_file() {
   local file="$1"
   if [[ ! -f "$file" ]]; then

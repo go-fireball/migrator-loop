@@ -68,10 +68,23 @@ migration-loop/
 
 1. Copy your entire legacy repository into `old/`.
 2. Review and update `docs/project.yaml`.
-3. Run `scripts/run-migration-baton.sh`.
+3. Run `scripts/run-migration-baton.sh` (or specify `--assistant codex|copilot|claude`).
 4. Complete each phase in order.
 5. At each phase stop, review artifacts and record a human approval in `docs/approvals/`.
 6. Continue only after approval status is `approved`.
+
+## Assistant provider support
+
+The baton scripts support multiple AI assistants for governance workflows:
+- `codex`
+- `copilot`
+- `claude`
+
+Set provider in either place:
+- `docs/project.yaml` via `default_assistant_provider`
+- runtime flag: `scripts/run-migration-baton.sh --assistant claude`
+
+Provider selection does not bypass approval gates; it only declares the execution assistant context for the run.
 
 ## Canonical phases
 

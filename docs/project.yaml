@@ -11,6 +11,7 @@ target_stack_summary:
   - "AWS ECS/Fargate + RDS PostgreSQL + CloudFront/S3"
 current_phase: 0
 app_type: mixed
+default_assistant_provider: codex
 execution_limits:
   max_agent_runs_per_session: 12
 key_modernization_decisions:
