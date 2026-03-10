@@ -17,6 +17,26 @@ require_file() {
   fi
 }
 
+require_glob_match() {
+  local pattern="$1"
+  if ! compgen -G "$pattern" >/dev/null; then
+    echo "ERROR: required artifact pattern has no matches -> $pattern" >&2
+    exit 1
+  fi
+}
+
+require_nonempty_dir() {
+  local dir="$1"
+  if [[ ! -d "$dir" ]]; then
+    echo "ERROR: required directory missing -> $dir" >&2
+    exit 1
+  fi
+  if [[ -z "$(find "$dir" -mindepth 1 -print -quit)" ]]; then
+    echo "ERROR: required directory is empty -> $dir" >&2
+    exit 1
+  fi
+}
+
 require_approval() {
   local approval_file="$1"
   require_file "$approval_file"

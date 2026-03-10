@@ -5,7 +5,7 @@ source "$DIR/common.sh"
 
 echo "== Phase 2 Strategy (Planner-Architect) =="
 require_file docs/strategy/migration-strategy.yaml
-require_file docs/adr/ADR-0001-migration-mode.md
+require_glob_match "docs/adr/ADR-*.md"
 require_file handoff/planner-architect/phase-2-handoff.yaml
 
 if grep -Eq '^[[:space:]]*status:[[:space:]]*needs_human_review([[:space:]]|$)' docs/unknowns/open-questions.yaml; then
