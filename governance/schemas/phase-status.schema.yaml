@@ -5,6 +5,12 @@ additionalProperties: false
 required: [current_phase, phase_states]
 properties:
   current_phase: { type: integer, minimum: 0, maximum: 6 }
+  last_assistant_provider:
+    type: string
+  last_rendered_prompt:
+    type: string
+  last_handoff:
+    type: string
   phase_states:
     type: array
     minItems: 7

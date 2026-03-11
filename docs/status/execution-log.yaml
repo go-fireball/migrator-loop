@@ -1,0 +1,15 @@
+execution_runs:
+  - timestamp: "2026-01-10T12:45:00Z"
+    phase: 0
+    role: Analyst
+    provider: codex
+    rendered_prompt: handoff/analyst/rendered-phase-0-prompt.md
+    handoff: handoff/analyst/phase-0-handoff.yaml
+    result: stop_for_approval
+  - timestamp: "2026-03-11T00:15:52Z"
+    phase: 0
+    role: Analyst
+    provider: codex
+    rendered_prompt: handoff/analyst/rendered-phase-0-prompt.md
+    handoff: handoff/analyst/phase-0-handoff.yaml
+    result: stop_for_approval

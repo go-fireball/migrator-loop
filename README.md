@@ -1,179 +1,108 @@
 # migration-loop
 
-`migration-loop` is a governance-first, human-in-the-loop framework for modernizing **one legacy application at a time**. It uses a tagged baton handoff model across explicit phases and roles, with hard stop points for human review.
+`migration-loop` is a governance-first, human-in-the-loop migration framework. It now combines:
 
-The framework is designed for teams who want AI-assisted migration **without** open-ended autonomous execution.
+1. **Execution baton** (assistant actually performs phase work)
+2. **Governance gates** (human approval is still mandatory between phases)
 
-## Core Philosophy
+This is intentionally **not** an always-on autonomous agent system.
 
-1. Preserve business behavior and core workflows first.
-2. Modernize technology second.
-3. Delivery-channel changes (for example, Windows desktop to web) require explicit human approval.
-4. Prefer direct parity rewrite for small/medium apps with clear boundaries.
-5. Prefer hybrid or strangler migration for large, business-critical, or unclear systems.
-6. Prefer modular monoliths over many microservices.
-7. Use mainstream frameworks and boring, maintainable architecture.
-8. Stop between phases and require human approval before continuing.
-9. Record all approvals, questions, unknowns, and decisions in durable files.
-10. Make structured artifacts machine-readable and human-readable (YAML-first).
+## Core model
 
-## What this repository provides
+For each phase, baton execution is:
 
-- Governance policies, role definitions, and ownership rules.
-- Strict YAML schemas for key migration artifacts.
-- Templates for repeatable, inspectable outputs.
-- Baton handoff folders per role.
-- Phase scripts that enforce approval gates.
-- First-class parity contract structure under `docs/parity/`.
-- `old/` and `new/` boundaries for legacy and modernized code.
+1. Validate prerequisites
+2. Render inspectable phase prompt
+3. Invoke selected assistant provider (`codex`, `claude`, `copilot`)
+4. Generate/update phase artifacts
+5. Validate required artifacts
+6. Mark `needs_human_review`
+7. Stop for approval
+8. On rerun with approval in place, mark phase approved and continue
 
-## Folder layout
+## Folder layout additions
 
 ```text
-migration-loop/
-  README.md
-  governance/
-    policies/
-    roles/
-    schemas/
-    templates/
-    judgments/
-  docs/
-    current-state/
-    strategy/
-    features/
-    stories/
-    tasks/
-    parity/
-    unknowns/
-    adr/
-    approvals/
-    status/
-  handoff/
-    analyst/
-    planner-architect/
-    builder/
-    validator/
-    sje-reviewer/
-  old/
-  new/
-    apps/
-    packages/
-    infra/
-    tests/
-  scripts/
+scripts/
+  providers/
+    run-assistant.sh
+    codex.sh
+    claude.sh
+    copilot.sh
+    mock-assistant.sh
+  render-prompt.sh
+  update-status.py
+governance/
+  prompts/
+docs/status/
+  execution-log.yaml
 ```
 
 ## Quick start
 
-1. Copy your entire legacy repository into `old/`.
-2. Review and update `docs/project.yaml`.
-3. Run `scripts/run-migration-baton.sh` (or specify `--assistant codex|copilot|claude`).
-4. Complete each phase in order.
-5. At each phase stop, review artifacts and record a human approval in `docs/approvals/`.
-6. Continue only after approval status is `approved`.
+1. Copy legacy code into `old/`.
+2. Configure `docs/project.yaml` (provider + execution limits).
+3. Run baton:
+   - `scripts/run-migration-baton.sh`
+   - or `scripts/run-migration-baton.sh --assistant claude`
+4. Review artifacts and rendered prompt under `handoff/<role>/`.
+5. Approve phase in `docs/approvals/approval-phase-<n>.yaml`.
+6. Resume:
+   - `scripts/run-migration-baton.sh --resume`
+   - or target a phase: `scripts/run-migration-baton.sh --phase 3`
 
-## Assistant provider support
+## Provider adapter model
 
-The baton scripts support multiple AI assistants for governance workflows:
-- `codex`
-- `copilot`
-- `claude`
+- Provider CLIs are isolated in `scripts/providers/*.sh`.
+- Adapters contain realistic CLI wrappers and TODO notes for exact flags.
+- When a provider CLI is unavailable, adapters fall back to `mock-assistant.sh` so baton behavior remains testable and inspectable.
+- Provider selection does **not** bypass approvals.
 
-Set provider in either place:
-- `docs/project.yaml` via `default_assistant_provider`
-- runtime flag: `scripts/run-migration-baton.sh --assistant claude`
+## Prompt rendering
 
-Provider selection does not bypass approval gates; it only declares the execution assistant context for the run.
+Each phase uses a prompt template from `governance/prompts/`.
 
-## Canonical phases
+The rendered prompt is written to:
 
-- Phase 0 - Intake
-- Phase 1 - Discovery
-- Phase 2 - Strategy
-- Phase 3 - Backlog Generation
-- Phase 4 - Story Implementation
-- Phase 5 - Validation
-- Phase 6 - Delivery Readiness
+- `handoff/<role>/rendered-phase-<n>-prompt.md`
 
-Each phase has:
-- expected outputs,
-- a handoff location,
-- a role owner,
-- a schema/template,
-- explicit stop conditions,
-- an approval gate.
+Rendered prompts include project/status context, parity references, open questions, and phase-specific source artifacts.
 
-## How approvals work
+## Traceability
 
-- Every phase writes `needs_human_review` before pause.
-- Human approval is captured in `docs/approvals/approval-phase-<n>.yaml`.
-- `docs/status/phase-status.yaml` is updated only after approval.
-- If ambiguity/conflict exists, phase must stop and open a question in `docs/unknowns/open-questions.yaml`.
+- `docs/status/phase-status.yaml` tracks current phase, per-phase status, last provider, last rendered prompt, and last handoff.
+- `docs/status/execution-log.yaml` appends phase run entries:
+  - timestamp
+  - phase
+  - role
+  - provider
+  - rendered prompt path
+  - handoff path
+  - result (`success|stop_for_approval|error`)
 
-## How parity contracts work
+## Approvals remain hard gates
 
-Parity contracts define behavior to preserve while modernizing implementation.
+Human-in-the-loop control is unchanged:
 
-Key fields include:
-- legacy entry points and modules,
-- target apps,
-- business rules and edge cases,
-- allowed modernizations,
-- forbidden changes,
-- validation approach and parity result.
+- phase work is executed first,
+- baton stops for approval,
+- continuation requires `decision: approved`.
 
-See examples in:
-- `docs/parity/login.yaml`
-- `docs/parity/order-processing.yaml`
+## Canonical phases and ownership
 
-## Agent roles
+- Phase 0: Intake (**Analyst**)
+- Phase 1: Discovery (**Analyst**)
+- Phase 2: Strategy (**Planner-Architect**)
+- Phase 3: Backlog Generation (**Planner-Architect**)
+- Phase 4: Story Implementation (**Builder**) in `new/`
+- Phase 5: Validation (**Validator**)
+- Phase 6: Delivery Readiness (**SJE-Reviewer**)
 
-- **Analyst**: inventories `old/`, captures workflows/dependencies/risks, initializes parity artifacts.
-- **Planner-Architect**: selects migration mode, target architecture, features/stories/tasks, modernization decisions.
-- **Builder**: implements approved stories in `new/`.
-- **Validator**: verifies unit/integration/parity outcomes and deviations.
-- **SJE-Reviewer**: governance/judgment gate for boring architecture and risk control.
+## Guardrails preserved
 
-## Example migration flow
-
-1. Intake: define project scope, constraints, and initial risks.
-2. Discovery: map legacy modules and workflows.
-3. Strategy: pick direct rewrite/hybrid/strangler and architecture.
-4. Backlog: produce feature/story/task files tied to parity contracts.
-5. Implementation: deliver approved stories under `new/`.
-6. Validation: compare behavior against parity contracts.
-7. Delivery Readiness: final readiness summary and release plan.
-
-## Guardrails and non-goals
-
-### Guardrails
-
-- Do not proceed past a phase without a recorded approval.
-- Do not change behavior outside approved parity scope.
-- Do not bypass unknown/question tracking.
-- Do not let non-owner roles edit owner-controlled artifacts.
-
-### Non-goals / anti-patterns
-
-- Not a fully autonomous always-on multi-agent runtime.
-- No default microservices-first decomposition.
-- No invention of undocumented business behavior.
-- No silent external behavior changes.
-- No default NoSQL choice for relational workloads.
-- No Lambda-first architecture by default.
-- No custom framework creation without explicit justification.
-- No automatic continuation through approval gates.
-
-## Default technical guidance
-
-- Backend: ASP.NET Core (C#), controller/service/repository, optional pragmatic vertical slices.
-- Frontend: React + Next.js (React/Vite for lightweight internal tools).
-- Database: PostgreSQL by default, with risk-reducing transitional options allowed.
-- Infra: AWS default, CDK preferred, ECS/Fargate preferred, RDS/Aurora PostgreSQL preferred.
-- Auth: Cognito default on AWS unless justified override.
-- CI/CD: include GitHub Actions and Azure DevOps templates.
-
-## ADR usage
-
-Use `docs/adr/ADR-XXXX-<slug>.md` with the provided template. ADRs are required for major modernization choices, especially delivery channel changes or architecture boundary shifts.
+- parity-first modernization
+- docs/parity contracts
+- docs/unknowns decision tracking
+- role-owned handoffs
+- strict phase sequencing with stop points
+- mandatory human approvals between phases

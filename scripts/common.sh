@@ -4,6 +4,7 @@ set -euo pipefail
 PROJECT_FILE="docs/project.yaml"
 STATUS_FILE="docs/status/phase-status.yaml"
 UNKNOWNS_FILE="docs/unknowns/open-questions.yaml"
+UPDATE_STATUS_SCRIPT="scripts/update-status.py"
 
 get_max_runs() {
   awk '/max_agent_runs_per_session:/ {print $2}' "$PROJECT_FILE"
@@ -16,6 +17,10 @@ get_default_assistant_provider() {
     provider="codex"
   fi
   echo "$provider"
+}
+
+get_current_phase() {
+  awk -F': *' '/^current_phase:/ {print $2; exit}' "$STATUS_FILE"
 }
 
 validate_assistant_provider() {
@@ -60,11 +65,44 @@ require_nonempty_dir() {
 
 require_approval() {
   local approval_file="$1"
+  local decision
   require_file "$approval_file"
-  if ! awk '/decision:/ {print $2}' "$approval_file" | grep -q '^approved$'; then
-    echo "STOP: approval missing or not approved in $approval_file"
+  decision="$(awk -F': *' '/^[[:space:]]*decision:[[:space:]]*/ {print $2; exit}' "$approval_file" | sed -E 's/^[[:space:]"'"'"']+|[[:space:]"'"'"']+$//g')"
+  if [[ "$decision" != "approved" ]]; then
+    echo "STOP: approval missing or not approved in $approval_file (decision: ${decision:-<missing>}; expected: approved)"
     exit 2
   fi
+}
+
+set_phase_status() {
+  local phase="$1"
+  local status="$2"
+  python3 "$UPDATE_STATUS_SCRIPT" --phase "$phase" --status "$status"
+}
+
+mark_phase_needs_human_review() {
+  local phase="$1"
+  set_phase_status "$phase" "needs_human_review"
+}
+
+mark_phase_approved() {
+  local phase="$1"
+  set_phase_status "$phase" "approved"
+}
+
+record_phase_metadata() {
+  local phase="$1"
+  local role="$2"
+  local provider="$3"
+  local prompt_path="$4"
+  local handoff_path="$5"
+  local result="$6"
+  python3 "$UPDATE_STATUS_SCRIPT" --phase "$phase" --role "$role" --provider "$provider" --prompt-path "$prompt_path" --handoff-path "$handoff_path" --result "$result"
+}
+
+advance_current_phase() {
+  local phase="$1"
+  python3 "$UPDATE_STATUS_SCRIPT" --phase "$phase" --current-phase "$phase"
 }
 
 log_stop() {
