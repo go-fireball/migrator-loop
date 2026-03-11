@@ -1,108 +1,60 @@
 # migration-loop
 
-`migration-loop` is a governance-first, human-in-the-loop migration framework. It now combines:
+`migration-loop` is a governance-first, human-in-the-loop migration framework.
+It uses a controlled baton model: assistants perform phase work, then humans approve before continuation.
 
-1. **Execution baton** (assistant actually performs phase work)
-2. **Governance gates** (human approval is still mandatory between phases)
+## Execution lifecycle (per phase)
 
-This is intentionally **not** an always-on autonomous agent system.
+1. Validate prerequisites.
+2. Render an inspectable prompt at `handoff/<role>/rendered-phase-<n>-prompt.md`.
+3. Invoke selected provider (`codex`, `claude`, `copilot`) via adapters.
+4. Validate required artifacts.
+5. Mark phase `needs_human_review`.
+6. Stop for approval.
 
-## Core model
+### Resume semantics (important)
 
-For each phase, baton execution is:
+- **Before approval:** rerun stops without re-running assistant work.
+- **After approval:** rerun finalizes the phase, updates status/manifest, and advances to the next phase **without re-running assistant work**.
 
-1. Validate prerequisites
-2. Render inspectable phase prompt
-3. Invoke selected assistant provider (`codex`, `claude`, `copilot`)
-4. Generate/update phase artifacts
-5. Validate required artifacts
-6. Mark `needs_human_review`
-7. Stop for approval
-8. On rerun with approval in place, mark phase approved and continue
-
-## Folder layout additions
-
-```text
-scripts/
-  providers/
-    run-assistant.sh
-    codex.sh
-    claude.sh
-    copilot.sh
-    mock-assistant.sh
-  render-prompt.sh
-  update-status.py
-governance/
-  prompts/
-docs/status/
-  execution-log.yaml
-```
+This preserves strict sequencing while avoiding duplicate assistant executions.
 
 ## Quick start
 
-1. Copy legacy code into `old/`.
-2. Configure `docs/project.yaml` (provider + execution limits).
+1. Place legacy app under `old/`.
+2. Update `docs/project.yaml`.
 3. Run baton:
    - `scripts/run-migration-baton.sh`
    - or `scripts/run-migration-baton.sh --assistant claude`
-4. Review artifacts and rendered prompt under `handoff/<role>/`.
-5. Approve phase in `docs/approvals/approval-phase-<n>.yaml`.
-6. Resume:
-   - `scripts/run-migration-baton.sh --resume`
-   - or target a phase: `scripts/run-migration-baton.sh --phase 3`
+4. Review outputs and approvals.
+5. Resume with `scripts/run-migration-baton.sh --resume`.
+
+Optional controls:
+- `--phase <n>`: run only a specific phase.
+- `ALLOW_MOCK_FALLBACK=true|false`: control fallback behavior in provider adapters.
 
 ## Provider adapter model
 
-- Provider CLIs are isolated in `scripts/providers/*.sh`.
-- Adapters contain realistic CLI wrappers and TODO notes for exact flags.
-- When a provider CLI is unavailable, adapters fall back to `mock-assistant.sh` so baton behavior remains testable and inspectable.
-- Provider selection does **not** bypass approvals.
+Provider wrappers live in `scripts/providers/`:
+- `codex.sh`
+- `claude.sh`
+- `copilot.sh`
+- shared dispatcher: `run-assistant.sh`
 
-## Prompt rendering
-
-Each phase uses a prompt template from `governance/prompts/`.
-
-The rendered prompt is written to:
-
-- `handoff/<role>/rendered-phase-<n>-prompt.md`
-
-Rendered prompts include project/status context, parity references, open questions, and phase-specific source artifacts.
+Behavior:
+- If real CLI is available and succeeds, **mock is not executed**.
+- If CLI is missing/fails, mock fallback is used only when `ALLOW_MOCK_FALLBACK=true` (default).
+- Execution mode is written to phase output and execution log (`real`, `mock_fallback`, `resume_no_execution`, etc.).
 
 ## Traceability
 
-- `docs/status/phase-status.yaml` tracks current phase, per-phase status, last provider, last rendered prompt, and last handoff.
-- `docs/status/execution-log.yaml` appends phase run entries:
-  - timestamp
-  - phase
-  - role
-  - provider
-  - rendered prompt path
-  - handoff path
-  - result (`success|stop_for_approval|error`)
+- `docs/status/phase-status.yaml`: current phase, per-phase statuses, and last prompt/handoff/provider metadata.
+- `docs/project.yaml`: includes `last_successful_phase` and execution-provider contract fields.
+- `docs/status/execution-log.yaml`: append-only execution events with result and execution mode.
 
-## Approvals remain hard gates
+## Guardrails (unchanged)
 
-Human-in-the-loop control is unchanged:
-
-- phase work is executed first,
-- baton stops for approval,
-- continuation requires `decision: approved`.
-
-## Canonical phases and ownership
-
-- Phase 0: Intake (**Analyst**)
-- Phase 1: Discovery (**Analyst**)
-- Phase 2: Strategy (**Planner-Architect**)
-- Phase 3: Backlog Generation (**Planner-Architect**)
-- Phase 4: Story Implementation (**Builder**) in `new/`
-- Phase 5: Validation (**Validator**)
-- Phase 6: Delivery Readiness (**SJE-Reviewer**)
-
-## Guardrails preserved
-
-- parity-first modernization
-- docs/parity contracts
-- docs/unknowns decision tracking
-- role-owned handoffs
-- strict phase sequencing with stop points
-- mandatory human approvals between phases
+- Human approval gates are mandatory.
+- `docs/parity/` and parity-first behavior are preserved.
+- `docs/unknowns/open-questions.yaml` remains the place for unresolved assumptions.
+- This is not an always-on autonomous agent runtime.

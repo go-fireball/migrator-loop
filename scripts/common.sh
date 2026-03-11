@@ -26,8 +26,7 @@ get_current_phase() {
 validate_assistant_provider() {
   local provider="$1"
   case "$provider" in
-    codex|copilot|claude)
-      ;;
+    codex|copilot|claude) ;;
     *)
       echo "ERROR: unsupported assistant provider '$provider' (supported: codex, copilot, claude)" >&2
       exit 1
@@ -63,11 +62,51 @@ require_nonempty_dir() {
   fi
 }
 
+phase_status() {
+  local phase="$1"
+  awk -v phase="$phase" '
+    $0 ~ "^[[:space:]]*- phase: " phase "$" {in_phase=1; next}
+    in_phase && $0 ~ "^[[:space:]]*- phase:" {exit}
+    in_phase && $0 ~ "^[[:space:]]*status:" {
+      sub(/^[[:space:]]*status:[[:space:]]*/, "", $0)
+      print $0
+      exit
+    }
+  ' "$STATUS_FILE"
+}
+
+approval_decision() {
+  local approval_file="$1"
+  require_file "$approval_file"
+  awk -F': *' '/^[[:space:]]*decision:[[:space:]]*/ {print $2; exit}' "$approval_file" | sed -E 's/^[[:space:]"'"'"']+|[[:space:]"'"'"']+$//g'
+}
+
+is_approval_approved() {
+  local approval_file="$1"
+  [[ "$(approval_decision "$approval_file")" == "approved" ]]
+}
+
+is_phase_waiting_for_approval() {
+  local phase="$1"
+  [[ "$(phase_status "$phase")" == "needs_human_review" ]]
+}
+
+is_phase_approved() {
+  local phase="$1"
+  [[ "$(phase_status "$phase")" == "approved" ]]
+}
+
+is_phase_already_executed() {
+  local phase="$1"
+  local status
+  status="$(phase_status "$phase")"
+  [[ "$status" == "needs_human_review" || "$status" == "approved" ]]
+}
+
 require_approval() {
   local approval_file="$1"
   local decision
-  require_file "$approval_file"
-  decision="$(awk -F': *' '/^[[:space:]]*decision:[[:space:]]*/ {print $2; exit}' "$approval_file" | sed -E 's/^[[:space:]"'"'"']+|[[:space:]"'"'"']+$//g')"
+  decision="$(approval_decision "$approval_file")"
   if [[ "$decision" != "approved" ]]; then
     echo "STOP: approval missing or not approved in $approval_file (decision: ${decision:-<missing>}; expected: approved)"
     exit 2
@@ -90,6 +129,24 @@ mark_phase_approved() {
   set_phase_status "$phase" "approved"
 }
 
+set_current_phase() {
+  local phase="$1"
+  python3 "$UPDATE_STATUS_SCRIPT" --phase "$phase" --current-phase "$phase"
+}
+
+set_last_successful_phase() {
+  local phase="$1"
+  python3 "$UPDATE_STATUS_SCRIPT" --phase "$phase" --last-successful-phase "$phase"
+}
+
+mark_phase_complete() {
+  local phase="$1"
+  local next="$2"
+  mark_phase_approved "$phase"
+  set_last_successful_phase "$phase"
+  set_current_phase "$next"
+}
+
 record_phase_metadata() {
   local phase="$1"
   local role="$2"
@@ -97,12 +154,15 @@ record_phase_metadata() {
   local prompt_path="$4"
   local handoff_path="$5"
   local result="$6"
-  python3 "$UPDATE_STATUS_SCRIPT" --phase "$phase" --role "$role" --provider "$provider" --prompt-path "$prompt_path" --handoff-path "$handoff_path" --result "$result"
-}
-
-advance_current_phase() {
-  local phase="$1"
-  python3 "$UPDATE_STATUS_SCRIPT" --phase "$phase" --current-phase "$phase"
+  local execution_mode="${7:-unknown}"
+  python3 "$UPDATE_STATUS_SCRIPT" \
+    --phase "$phase" \
+    --role "$role" \
+    --provider "$provider" \
+    --prompt-path "$prompt_path" \
+    --handoff-path "$handoff_path" \
+    --result "$result" \
+    --execution-mode "$execution_mode"
 }
 
 log_stop() {

@@ -63,18 +63,16 @@ run_phase() {
   MIGRATION_ASSISTANT_PROVIDER="$ASSISTANT_PROVIDER" "$DIR/$script"
   rc=$?
   set -e
-  if [[ $rc -ne 0 ]]; then
-    if [[ $rc -eq 2 ]]; then
-      echo "Stopped for approval at phase ${phase}."
-      exit 2
-    fi
-    exit "$rc"
-  fi
 
-  next=$((phase + 1))
-  if (( next <= 6 )); then
-    advance_current_phase "$next"
+  if [[ $rc -eq 2 ]]; then
+    echo "Stopped for approval at phase ${phase}."
+    return 2
   fi
+  if [[ $rc -ne 0 ]]; then
+    echo "Phase ${phase} failed with exit code $rc"
+    return "$rc"
+  fi
+  return 0
 }
 
 echo "Using assistant provider: $ASSISTANT_PROVIDER"
@@ -82,9 +80,7 @@ start_phase="$(get_current_phase)"
 
 if [[ -n "$TARGET_PHASE" ]]; then
   start_phase="$TARGET_PHASE"
-fi
-
-if [[ "$RESUME" == true && -z "$TARGET_PHASE" ]]; then
+elif [[ "$RESUME" == true ]]; then
   start_phase="$(get_current_phase)"
 fi
 
@@ -92,7 +88,18 @@ for phase in 0 1 2 3 4 5 6; do
   if (( phase < start_phase )); then
     continue
   fi
+
+  set +e
   run_phase "$phase"
+  rc=$?
+  set -e
+  if [[ $rc -eq 2 ]]; then
+    exit 2
+  fi
+  if [[ $rc -ne 0 ]]; then
+    exit "$rc"
+  fi
+
   if [[ -n "$TARGET_PHASE" ]]; then
     break
   fi
