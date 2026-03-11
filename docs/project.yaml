@@ -12,8 +12,17 @@ target_stack_summary:
 current_phase: 0
 app_type: mixed
 default_assistant_provider: codex
+assistant_execution_mode: cli
 execution_limits:
   max_agent_runs_per_session: 12
+provider_overrides:
+  codex:
+    command_hint: "codex exec"
+  claude:
+    command_hint: "claude"
+  copilot:
+    command_hint: "gh copilot"
+last_successful_phase: -1
 key_modernization_decisions:
   - id: MOD-001
     decision: "Windows desktop channel replacement with web UI"

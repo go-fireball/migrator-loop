@@ -11,6 +11,9 @@ required:
   - execution_limits
   - app_type
   - default_assistant_provider
+  - assistant_execution_mode
+  - provider_overrides
+  - last_successful_phase
   - key_modernization_decisions
 properties:
   project_name:
@@ -37,12 +40,23 @@ properties:
   default_assistant_provider:
     type: string
     enum: [codex, copilot, claude]
+  assistant_execution_mode:
+    type: string
+    enum: [cli]
   execution_limits:
     type: object
     additionalProperties: false
     required: [max_agent_runs_per_session]
     properties:
       max_agent_runs_per_session: { type: integer, minimum: 1 }
+  provider_overrides:
+    type: object
+    additionalProperties:
+      type: object
+  last_successful_phase:
+    type: integer
+    minimum: -1
+    maximum: 6
   key_modernization_decisions:
     type: array
     items:

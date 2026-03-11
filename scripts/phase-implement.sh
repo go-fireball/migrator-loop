@@ -3,12 +3,48 @@ set -euo pipefail
 DIR="$(cd "$(dirname "$0")" && pwd)"
 source "$DIR/common.sh"
 
-echo "== Phase 4 Story Implementation (Builder) =="
-require_file handoff/builder/phase-4-handoff.yaml
+provider="${MIGRATION_ASSISTANT_PROVIDER:-$(get_default_assistant_provider)}"
+phase=4
+next_phase=5
+role="Builder"
+role_slug="builder"
+template="governance/prompts/builder-phase-4-implement.md"
+approval_file="docs/approvals/approval-phase-4.yaml"
+handoff="handoff/builder/phase-4-handoff.yaml"
+outdir="handoff/builder/execution"
+prompt_path="handoff/${role_slug}/rendered-phase-${phase}-prompt.md"
 
-echo "Implementation occurs in new/."
-echo "Do not proceed if story/task status is not approved."
+echo "== Phase 4 Story Implementation (${role}) =="
+require_file handoff/planner-architect/phase-3-handoff.yaml
 
-require_approval docs/approvals/approval-phase-4.yaml
+if is_phase_approved "$phase"; then
+  set_last_successful_phase "$phase"
+  set_current_phase "$next_phase"
+  echo "Phase ${phase} already approved."
+  exit 0
+fi
 
-echo "Phase 4 approved."
+if is_phase_waiting_for_approval "$phase"; then
+  if is_approval_approved "$approval_file"; then
+    mark_phase_complete "$phase" "$next_phase"
+    record_phase_metadata "$phase" "$role" "$provider" "$prompt_path" "$handoff" "success" "resume_no_execution"
+    echo "Phase ${phase} approved."
+    exit 0
+  fi
+  echo "Phase ${phase} is waiting for human approval."
+  exit 2
+fi
+
+prompt_path="$($DIR/render-prompt.sh "$phase" "$role_slug" "$template")"
+"$DIR/providers/run-assistant.sh" "$provider" "$role" "$phase" "$prompt_path" "$outdir"
+execution_mode="$(cat "$outdir/phase-${phase}-execution-mode.txt" 2>/dev/null || echo unknown)"
+
+require_nonempty_dir new
+require_file docs/implementation/phase-4-summary.yaml
+require_file "$handoff"
+
+mark_phase_needs_human_review "$phase"
+record_phase_metadata "$phase" "$role" "$provider" "$prompt_path" "$handoff" "stop_for_approval" "$execution_mode"
+
+echo "Phase ${phase} executed and is now waiting for human approval."
+exit 2

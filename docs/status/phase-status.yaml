@@ -1,4 +1,7 @@
 current_phase: 0
+last_assistant_provider: none
+last_rendered_prompt: none
+last_handoff: none
 phase_states:
   - phase: 0
     name: Intake
